@@ -168,7 +168,10 @@ def login(email, password, country_code, continent_code):
 @click.argument('minutes', type=click.FLOAT)
 def clean(frequency, minutes):
     if should_run(frequency):
-        return CliAction(Clean(), wait=TimeWait(minutes * 60))
+        if minutes == 0:
+            return CliAction(Clean())
+        else:
+            return CliAction(Clean(), wait=TimeWait(minutes * 60))
 
 
 @cli.command(help='cleans room edges for the specified number of minutes')
@@ -197,7 +200,8 @@ def stop():
 def run(actions, debug):
     actions = list(filter(None.__ne__, actions))
     if actions and charge and not actions[-1].terminal:
-        actions.append(charge_action())
+        if actions[-1].wait is not None:
+            actions.append(charge_action())
 
     if not config_file_exists():
         click.echo("Not logged in. Do 'click login' first.")
@@ -207,21 +211,25 @@ def run(actions, debug):
         _LOGGER.debug("will run {}".format(actions))
 
     if actions:
-        config = read_config()
-        api = EcoVacsAPI(config['device_id'], config['email'], config['password_hash'],
-                         config['country'], config['continent'])
-        vacuum = api.devices()[0]
-        vacbot = VacBot(api.uid, api.REALM, api.resource, api.user_access_token, vacuum, config['continent'])
+        vacbot = getVacBot()
         vacbot.connect_and_wait_until_ready()
-
         for action in actions:
             click.echo("performing " + str(action.vac_command))
             vacbot.run(action.vac_command)
-            action.wait.wait(vacbot)
+            if action.wait is not None:
+                action.wait.wait(vacbot)
 
         vacbot.disconnect(wait=True)
 
     click.echo("done")
+
+def getVacBot():
+    config = read_config()
+    api = EcoVacsAPI(config['device_id'], config['email'], config['password_hash'],
+                 config['country'], config['continent'])
+    vacuum = api.devices()[0]
+    vacbot = VacBot(api.uid, api.REALM, api.resource, api.user_access_token, vacuum, config['continent'])
+    return vacbot
 
 
 if __name__ == '__main__':
