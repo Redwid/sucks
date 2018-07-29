@@ -1,11 +1,10 @@
+import click
 import configparser
 import itertools
 import os
 import platform
 import random
 import re
-
-import click
 from pycountry_convert import country_alpha2_to_continent_code
 
 from sucks import *
@@ -86,7 +85,7 @@ def config_file():
     if platform.system() == 'Windows':
         return os.path.join(os.getenv('APPDATA'), 'sucks.conf')
     else:
-        return os.path.expanduser('~/.config/sucks.conf')
+        return os.path.expanduser('/opt/sucks/.config/sucks.conf')
 
 
 def config_file_exists():
