@@ -5,6 +5,10 @@ Windows: [![Build Status](https://ci.appveyor.com/api/projects/status/github/wpi
 sucks
 =====
 
+## Forked version
+
+Has ability to exclude wait command from the control sequence. Just specify minutes as 0 and no wait command will be executed.
+
 A simple command-line python script to drive a robot vacuum. Currently
 known to work with the Ecovacs Deebot N79, M80 Pro, M81, M88
 Pro, and R95 MKII from both North America and Europe.
